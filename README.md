@@ -1,7 +1,7 @@
 goalbatch
 ================
 [![](https://godoc.org/github.com/upbit/goalbatch?status.svg)](http://godoc.org/github.com/upbit/goalbatch)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/upbit/goalbatch/blob/master/LICENSE.md)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/upbit/goalbatch/blob/master/LICENSE)
 
 goalbatch - A simple way to execute functions asynchronously and waits for results
 
