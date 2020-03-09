@@ -60,7 +60,6 @@ func TestBatchWithTimeout(t *testing.T) {
 		timeout := time.Duration(100) * time.Millisecond
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
-		start := time.Now()
 
 		// Gen async functions
 		fns := make([]AsyncFunc, 4)
@@ -69,7 +68,12 @@ func TestBatchWithTimeout(t *testing.T) {
 		}
 
 		g := New(ctx)
+
+		start := time.Now()
 		rs, errs := g.Batch(fns...)
+		cost := time.Since(start)
+
+		So(cost, ShouldBeBetweenOrEqual, 100*time.Millisecond, 500*time.Millisecond)
 
 		// t.Log(rs)
 		// t.Log(errs)
@@ -85,9 +89,6 @@ func TestBatchWithTimeout(t *testing.T) {
 		So(errs[1], ShouldBeNil)
 		So(errs[2], ShouldBeNil)
 		So(errs[3], ShouldBeNil)
-
-		cost := time.Since(start)
-		So(cost, ShouldBeBetweenOrEqual, 100*time.Millisecond, 200*time.Millisecond)
 	})
 }
 
