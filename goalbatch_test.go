@@ -25,11 +25,8 @@ func TestBatch(t *testing.T) {
 			},
 		)
 
-		t.Log(rs)
-		t.Log(errs)
-		// Output:
-		//   rs [1 <nil> 3]
-		// errs [<nil> "failed" <nil>]
+		// t.Log(rs)
+		// t.Log(errs)
 
 		So(rs, ShouldHaveLength, 3)
 		So(rs[0], ShouldEqual, 1)
@@ -74,11 +71,8 @@ func TestBatchWithTimeout(t *testing.T) {
 		g := New(ctx)
 		rs, errs := g.Batch(fns...)
 
-		t.Log(rs)
-		t.Log(errs)
-		// Output:
-		//   rs [<nil> param=2 param=3 <nil>]
-		// errs ["failed" <nil> <nil> <nil>]
+		// t.Log(rs)
+		// t.Log(errs)
 
 		So(rs, ShouldHaveLength, 4)
 		So(rs[0], ShouldBeNil)
@@ -93,7 +87,6 @@ func TestBatchWithTimeout(t *testing.T) {
 		So(errs[3], ShouldBeNil)
 
 		cost := time.Since(start)
-		t.Logf("cost: %v", cost)
 		So(cost, ShouldBeBetweenOrEqual, 100*time.Millisecond, 200*time.Millisecond)
 	})
 }
