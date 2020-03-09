@@ -1,5 +1,8 @@
 goalbatch
 ================
+[![goalbatch badge](https://github.com/upbit/goalbatch/workflows/goalbatch/badge.svg)](https://github.com/upbit/goalbatch/actions?query=workflow%3Agoalbatch)
+[![Go Report Card](https://goreportcard.com/badge/github.com/upbit/goalbatch)](https://goreportcard.com/report/github.com/upbit/goalbatch)
+[![codecov](https://codecov.io/gh/upbit/goalbatch/branch/master/graph/badge.svg)](https://codecov.io/gh/upbit/goalbatch)
 [![](https://godoc.org/github.com/upbit/goalbatch?status.svg)](http://godoc.org/github.com/upbit/goalbatch)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/upbit/goalbatch/blob/master/LICENSE)
 
