@@ -3,6 +3,7 @@ package goalbatch
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,15 +11,10 @@ import (
 )
 
 func TestBatch(t *testing.T) {
-	Convey("It should return rs in the same order as provided by Batch()", t, func() {
-		timeout := time.Duration(100) * time.Millisecond
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-
-		g := New(ctx)
+	Convey("It should return rs in the same order as provided", t, func() {
+		g := New(context.Background())
 		rs, errs := g.Batch(
 			func(ctx context.Context) (interface{}, error) {
-				time.Sleep(5 * time.Second)
 				return 1, nil
 			},
 			func(ctx context.Context) (interface{}, error) {
@@ -27,28 +23,78 @@ func TestBatch(t *testing.T) {
 			func(ctx context.Context) (interface{}, error) {
 				return 3, nil
 			},
-			func(ctx context.Context) (interface{}, error) {
-				return 4, nil
-			},
 		)
 
 		t.Log(rs)
 		t.Log(errs)
 		// Output:
-		//   rs [<nil> <nil> 3 4]
-		// errs [<nil> "failed" <nil> <nil>]
+		//   rs [1 <nil> 3]
+		// errs [<nil> "failed" <nil>]
 
-		So(rs, ShouldHaveLength, 4)
-		So(rs[0], ShouldBeNil)
+		So(rs, ShouldHaveLength, 3)
+		So(rs[0], ShouldEqual, 1)
 		So(rs[1], ShouldBeNil)
 		So(rs[2], ShouldEqual, 3)
-		So(rs[3], ShouldEqual, 4)
 
-		So(errs, ShouldHaveLength, 4)
+		So(errs, ShouldHaveLength, 3)
 		So(errs[0], ShouldBeNil)
 		So(errs[1].Error(), ShouldEqual, "failed")
 		So(errs[2], ShouldBeNil)
+	})
+}
+
+func TestBatchWithTimeout(t *testing.T) {
+	newAsyncFunc := func(ctx context.Context, param int) AsyncFunc {
+		return func(ctx context.Context) (interface{}, error) {
+			switch param {
+			case 0:
+				// 0 - failed
+				return nil, errors.New("failed")
+			case 3:
+				// 3 - timeoutd
+				time.Sleep(5 * time.Second)
+			}
+			result := fmt.Sprintf("param=%d", param+1)
+			return result, nil
+		}
+	}
+
+	Convey("It should return as soon as possible when context timeoutd", t, func() {
+		timeout := time.Duration(100) * time.Millisecond
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		start := time.Now()
+
+		// Gen async functions
+		fns := make([]AsyncFunc, 4)
+		for i, val := range []int{0, 1, 2, 3} {
+			fns[i] = newAsyncFunc(ctx, val)
+		}
+
+		g := New(ctx)
+		rs, errs := g.Batch(fns...)
+
+		t.Log(rs)
+		t.Log(errs)
+		// Output:
+		//   rs [<nil> param=2 param=3 <nil>]
+		// errs ["failed" <nil> <nil> <nil>]
+
+		So(rs, ShouldHaveLength, 4)
+		So(rs[0], ShouldBeNil)
+		So(rs[1], ShouldEqual, "param=2")
+		So(rs[2], ShouldEqual, "param=3")
+		So(rs[3], ShouldBeNil)
+
+		So(errs, ShouldHaveLength, 4)
+		So(errs[0].Error(), ShouldEqual, "failed")
+		So(errs[1], ShouldBeNil)
+		So(errs[2], ShouldBeNil)
 		So(errs[3], ShouldBeNil)
+
+		cost := time.Since(start)
+		t.Logf("cost: %v", cost)
+		So(cost, ShouldBeBetweenOrEqual, 100*time.Millisecond, 200*time.Millisecond)
 	})
 }
 
