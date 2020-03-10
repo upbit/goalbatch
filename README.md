@@ -51,7 +51,7 @@ Or generate closure functions with parameters:
 		}
 	}
 
-	fns := make([]AsyncFunc, 2)
+	fns := make([]goalbatch.AsyncFunc, 2)
 	fns[0] = newAsyncFunc(ctx, "foo", 1)
 	fns[1] = newAsyncFunc(ctx, "bar", 2)
 
